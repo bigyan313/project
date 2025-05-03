@@ -13,7 +13,7 @@ async function getUnsplashImage(query: string, imagePrompt?: string): Promise<st
   try {
     // Use the specific image prompt if available, otherwise use the query
     const searchQuery = imagePrompt 
-      ? `fashion ${imagePrompt} outfit style`
+      ? `${imagePrompt} outfit`
       : `${query} fashion outfit style`;
 
     const response = await fetch(
