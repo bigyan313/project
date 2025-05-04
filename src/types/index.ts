@@ -13,6 +13,7 @@ export interface WeatherData {
 }
 
 export interface OutfitItem {
+  id: string;
   type: string;
   description: string;
   searchQuery: string;
@@ -25,6 +26,7 @@ export interface Product {
   image: string;
   price: string;
   store: string;
+  description?: string; 
 }
 
 export interface ChatMessage {

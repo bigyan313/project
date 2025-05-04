@@ -98,19 +98,26 @@ function App() {
         </div>
 
         {hasInteracted && (
-          <button
-            onClick={toggleChat}
-            className="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-white shadow-lg border border-gray-100 hover:border-gray-200 transition-colors"
-          >
-            {isChatOpen ? (
-              <X className="h-5 w-5 text-gray-600" />
-            ) : (
-              <MessageCircle className="h-5 w-5 text-gray-600" />
-            )}
-          </button>
-        )}
+  <button
+    onClick={toggleChat}
+    className="fixed bottom-0 left-0 w-full z-50 py-4 bg-white shadow-md border-t border-gray-200 flex items-center justify-center gap-2 text-gray-700 font-medium text-base transition hover:bg-gray-50"
+  >
+    {isChatOpen ? (
+      <>
+        <X className="h-5 w-5" />
+        Close Chat
+      </>
+    ) : (
+      <>
+        <MessageCircle className="h-5 w-5" />
+        Open Chat
+      </>
+    )}
+  </button>
+)}
+        
 
-        <AnimatePresence>
+        <AnimatePresence>a
           {isChatOpen && (
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
