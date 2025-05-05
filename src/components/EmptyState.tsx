@@ -11,7 +11,9 @@ const EmptyState: React.FC<EmptyStateProps> = ({ onChatOpen, hasInteracted }) =>
     <div className="bg-white p-8 flex flex-col items-center justify-center text-center h-[calc(100vh-8rem)]">
       
       
-
+<br></br>
+<br></br>
+<br></br>
       <h3 className="text-2xl font-light text-gray-800 mb-4">
         Welcome to Your AI Style Concierge
       </h3>
