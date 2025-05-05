@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { OutfitItem } from '../types';
 import OutfitCard from './OutfitCard';
 import {
@@ -29,6 +29,13 @@ const iconTags = [
 ];
 
 const OutfitSuggestions: React.FC<OutfitSuggestionsProps> = ({ outfits }) => {
+  const [activeTooltip, setActiveTooltip] = useState<number | null>(null);
+
+  const handleTagClick = (index: number) => {
+    setActiveTooltip(index === activeTooltip ? null : index);
+    setTimeout(() => setActiveTooltip(null), 2000); // Auto-hide after 2s
+  };
+
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
       <div className="flex justify-between items-center mb-6">
@@ -38,14 +45,22 @@ const OutfitSuggestions: React.FC<OutfitSuggestionsProps> = ({ outfits }) => {
         </div>
 
         {/* Vector-style icon badges */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 relative">
           {iconTags.map(({ icon: Icon, color, title }, idx) => (
-            <div
-              key={idx}
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${color}`}
-              title={title}
-            >
-              <Icon className="w-4 h-4" />
+            <div key={idx} className="relative">
+              <button
+                onClick={() => handleTagClick(idx)}
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${color} hover:shadow-md transition`}
+                title={title}
+              >
+                <Icon className="w-4 h-4" />
+              </button>
+
+              {activeTooltip === idx && (
+                <div className="absolute top-10 left-1/2 transform -translate-x-1/2 text-xs bg-black text-white px-2 py-1 rounded shadow z-10 whitespace-nowrap">
+                   {title} Outfits Filter Comming Soon
+                </div>
+              )}
             </div>
           ))}
         </div>

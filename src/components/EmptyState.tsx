@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wand2, MessageCircle } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 
 interface EmptyStateProps {
   onChatOpen: () => void;

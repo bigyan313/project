@@ -12,6 +12,10 @@ const LoadingState: React.FC = () => {
     { color: 'rgb(139, 92, 246)', size: 15 }, // Purple
     { color: 'rgb(236, 72, 153)', size: 13 }, // Hot Pink
     { color: 'rgb(45, 212, 191)', size: 17 }, // Teal
+    { color: 'rgb(221, 156, 80)', size: 0 }, // Orange
+    { color: 'rgb(149, 99, 346)', size: 5 }, // Purple
+    { color: 'rgb(216, 73, 113)', size: 3 }, // Hot Pink
+    { color: 'rgb(55, 216, 111)', size: 7 }, // Teal
   ];
 
   return (
@@ -54,7 +58,7 @@ const LoadingState: React.FC = () => {
               repeat: Infinity,
               ease: "linear",
               times: [0, 0.25, 0.5, 0.75, 1],
-              delay: index * 0.1
+              delay: index * 0.01
             }}
           />
         ))}
@@ -98,7 +102,7 @@ const LoadingState: React.FC = () => {
       </h3>
       
       <p className="text-gray-600 max-w-md font-light">
-        I'm checking the weather forecast and finding the perfect outfit recommendations for your trip.
+      Curating outfits using real-time weather data and trending styles for any occasion, effortlessly.
       </p>
     </div>
   );
