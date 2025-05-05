@@ -38,11 +38,19 @@ const EmptyState: React.FC<EmptyStateProps> = ({ onChatOpen, hasInteracted }) =>
         <div className="flex flex-wrap items-center gap-4 justify-center">
           <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/H%26M-Logo.svg" alt="H&M" className="w-6 h-auto" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Zara_Logo.svg/2880px-Zara_Logo.svg.png" alt="Zara" className="w-8 h-auto" />
-          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Macys_logo.svg" alt="Macy's" className="w-10 h-auto" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Macys_logo.svg" alt="Macy's" className="w-12 h-auto" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/American_Eagle_Outfitters_wordmark.svg/2880px-American_Eagle_Outfitters_wordmark.svg.png" alt="American Eagle" className="w-20 h-auto" />
           <img src="https://upload.wikimedia.org/wikipedia/en/thumb/5/50/Coach_New_York_logo.svg/2880px-Coach_New_York_logo.svg.png" alt="Coach" className="w-10 h-auto" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Uniqlo_logo_Japanese.svg/2880px-Uniqlo_logo_Japanese.svg.png" alt="Uniqlo" className="w-6 h-auto" />
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Target_%282018%29.svg/1024px-Target_%282018%29.svg.png" alt="Target" className="w-6 h-auto" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Target_%282018%29.svg/1024px-Target_%282018%29.svg.png" alt="Target" className="w-5 h-auto" />
+       
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Forever_21_logo.svg/2880px-Forever_21_logo.svg.png" alt="F21" className="w-10 h-auto" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Shein_Logo_2017.svg/2880px-Shein_Logo_2017.svg.png" alt="Shien" className="w-11 h-auto" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Fashion_Nova_Logo.svg/2880px-Fashion_Nova_Logo.svg.png" alt="FN" className="w-20 h-auto" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Giorgio_Armani.svg/2880px-Giorgio_Armani.svg.png" alt="AX" className="w-20 h-auto" />
+       
+          
+       
         </div>
 
         {!hasInteracted && (
