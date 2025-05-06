@@ -7,14 +7,15 @@ const openai = new OpenAI({
 });
 
 interface ExtractedInfo {
-  type: 'travel' | 'event';
+  type: 'travel' | 'event' | 'lyrics';
   destination?: string;
   date?: string;
   event?: string;
+  lyrics?: string;
 }
 
 export async function extractTravelInfo(message: string): Promise<ExtractedInfo> {
-  const systemPrompt = `You are a fashion AI assistant. Extract either travel information or event type from the user's message and return it in JSON format.
+  const systemPrompt = `You are a fashion AI assistant. Extract either travel information, event type, or song lyrics intent from the user's message and return it in JSON format.
 
 For travel requests:
 - Extract destination and date
@@ -39,21 +40,26 @@ For event requests:
   - Celebratory: birthday party, anniversary, engagement party
   - Seasonal: summer picnic, winter formal, spring garden party
 
-Expected JSON format for travel:
+For song lyrics:
+- If the message contains or references lyrics or a song name, return type as "lyrics" and include the lyrics or song name in the "lyrics" field.
+
+Expected JSON formats:
 {
   "type": "travel",
   "destination": "city or location",
   "date": "YYYY-MM-DD"
 }
-
-Expected JSON format for events:
 {
   "type": "event",
   "event": "specific event type from the list above"
+}
+{
+  "type": "lyrics",
+  "lyrics": "quoted lyrics or song name"
 }`;
 
   if (!message.trim()) {
-    throw new Error('Please provide a travel destination or event type');
+    throw new Error('Please provide a travel destination, event type, or song lyrics');
   }
 
   try {
@@ -67,7 +73,7 @@ Expected JSON format for events:
 
     const content = completion.choices[0].message.content;
     if (!content) {
-      throw new Error('Please provide more details about your travel plans or event');
+      throw new Error('Please provide more details about your travel plans, event type, or lyrics');
     }
 
     let result: ExtractedInfo;
@@ -75,50 +81,42 @@ Expected JSON format for events:
       result = JSON.parse(content);
     } catch (parseError) {
       console.error('Failed to parse OpenAI response:', content);
-      throw new Error('Could not understand your request. Please try being more specific about your travel plans or event type');
+      throw new Error('Could not understand your request. Please try being more specific');
     }
 
-    if (!result.type || !['travel', 'event'].includes(result.type)) {
-      throw new Error('Please specify either a travel destination with date or an event type');
+    if (!result.type || !['travel', 'event', 'lyrics'].includes(result.type)) {
+      throw new Error('Please specify either travel, event, or lyrics');
     }
 
     if (result.type === 'travel') {
-      if (!result.destination) {
-        throw new Error('Please specify a destination for your travel plans');
-      }
-      if (!result.date) {
-        throw new Error('Please specify when you plan to travel');
+      if (!result.destination || !result.date) {
+        throw new Error('Missing destination or date for travel');
       }
     } else if (result.type === 'event') {
       if (!result.event) {
-        throw new Error('Please specify what type of event you\'re attending');
+        throw new Error('Missing event type');
+      }
+    } else if (result.type === 'lyrics') {
+      if (!result.lyrics) {
+        throw new Error('Missing lyrics or song name');
       }
     }
 
     return result;
   } catch (error: any) {
     console.error('Error in extractTravelInfo:', error);
-
-    if (error instanceof SyntaxError) {
-      throw new Error('Could not understand your request. Please try being more specific about your travel plans or event type');
-    }
-
-    if (error.message) {
-      throw error;
-    }
-
-    throw new Error('Failed to process your request. Please try rephrasing with more specific details about your travel or event');
+    throw new Error(error.message || 'Failed to process your request');
   }
 }
 
-export async function generateOutfitSuggestions(params: { weather?: any; event?: string }): Promise<any[]> {
-  const { weather, event } = params;
+export async function generateOutfitSuggestions(params: { weather?: any; event?: string; lyrics?: string }): Promise<any[]> {
+  const { weather, event, lyrics } = params;
   let prompt = '';
-  
+
   if (weather) {
     const temp = Math.round(weather.temperature);
     const season = getSeason(new Date(weather.date));
-    
+
     prompt = `Generate 4 outfit recommendations for ${weather.location}. For each outfit, provide:
 
 1. A fashionable name for the overall look
@@ -147,23 +145,27 @@ ${weather.details.precipitation ? `- Precipitation: ${weather.details.precipitat
    - Full Dress/Suit (if applicable): type, color, fit
    - Shoes: type (e.g., oxford shoes, stiletto heels), color
    - Accessories: specific items (e.g., pearl necklace, leather belt)`;
+  } else if (lyrics) {
+    prompt = `Generate 4 fashion outfits inspired by the following lyrics or song: "${lyrics}". For each outfit, provide:
+
+1. A poetic or expressive name for the overall look
+2. A detailed list of clothing items with specific types, colors, and emotions:
+   - Top: type and color, with emotional or lyrical influence
+   - Bottom: type and color
+   - Outerwear (if any): style and mood tone
+   - Shoes: type, color, attitude
+   - Accessories: items that echo the song's theme or era`;
   }
 
-  prompt += `\n\nReturn a valid JSON array with exactly 4 outfit objects. Each object must have:
+  prompt += `
+
+Return a valid JSON array with exactly 4 outfit objects. Each object must have:
 {
   "type": "Fashionable outfit name",
   "description": "Top: [details], Bottom: [details], Shoes: [details], Accessories: [details]",
   "searchQuery": "Main item search term",
   "imagePrompt": "Brief photo description"
-}
-
-CRITICAL: 
-- Use clear, specific clothing terms
-- Include color for each item
-- Separate items with commas
-- Format description with clear labels (Top:, Bottom:, etc.)
-- No trailing commas in JSON
-- Keep descriptions detailed but easy to understand`;
+}`;
 
   try {
     const completion = await openai.chat.completions.create({
@@ -226,7 +228,6 @@ CRITICAL:
 
 function getSeason(date: Date): string {
   const month = date.getMonth() + 1;
-  
   if (month >= 3 && month <= 5) return 'Spring';
   if (month >= 6 && month <= 8) return 'Summer';
   if (month >= 9 && month <= 11) return 'Fall';

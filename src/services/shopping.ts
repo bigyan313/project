@@ -1,12 +1,18 @@
 import { Product } from '../types';
 
 const STORES = [
-  'macys.com',
+  'zara.com',
+  'nordstrom.com',
+  'asos.com',
+  'fashionnova.com',
+  'coach.com',
+  'armaniexchange.com',
+  'ae.com', 
+  'hm.com', 
   'target.com',
   'forever21.com',
-  'hm.com',
-  'zara.com',
-  'asos.com'
+  'shein.com',
+  'uniqlo.com'
 ];
 
 async function getUnsplashImage(query: string, imagePrompt?: string): Promise<string> {
@@ -69,7 +75,7 @@ export async function searchProducts(outfit: any): Promise<Product[]> {
     url.searchParams.append('key', import.meta.env.VITE_GOOGLE_API_KEY);
     url.searchParams.append('cx', import.meta.env.VITE_GOOGLE_CSE_ID);
     url.searchParams.append('q', enhancedQuery);
-    url.searchParams.append('num', '4');
+    url.searchParams.append('num', '6');
     url.searchParams.append('gl', 'us');
 
     const response = await fetch(url.toString());
