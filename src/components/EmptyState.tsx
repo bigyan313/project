@@ -33,13 +33,11 @@ const EmptyState: React.FC<EmptyStateProps> = ({ onChatOpen, hasInteracted }) =>
 
   return (
     <div className="min-h-screen bg-white text-black flex items-center justify-center px-4 sm:px-6 py-16 sm:py-20 relative overflow-hidden">
-      {/* Background Overlays */}
+      {/* Background (no extra edge gradients) */}
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-white via-sky-100 to-white"></div>
-      <div className="absolute top-[-10%] left-[-10%] w-80 h-80 bg-sky-200 opacity-200 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-red-100 opacity-200 rounded-full blur-3xl"></div>
 
       <div className="max-w-6xl w-full text-center space-y-10 z-10">
-        {/* Header with Gradient Animation */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -49,43 +47,41 @@ const EmptyState: React.FC<EmptyStateProps> = ({ onChatOpen, hasInteracted }) =>
           <motion.h1
             className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl bg-clip-text text-transparent leading-tight tracking-tight animate-gradient"
             style={{
-              backgroundImage:
-                'linear-gradient(90deg, #09b1ec',
+              backgroundImage: 'linear-gradient(90deg, #09b1ec, #000)',
               backgroundSize: '200% 200%',
               backgroundPosition: '0% 50%',
             }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{
-              duration: 1.8,
-              delay: 0.3,
-              staggerChildren: 0.05,
-            }}            >
+          >
             {Array.from("WELCOME TO ADHIKARI AI").map((letter, index) => (
               <motion.span
                 key={index}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{
-                  delay: 0.05 * index,
-                }}
+                transition={{ delay: 0.05 * index }}
               >
                 {letter === " " ? "\u00A0" : letter}
               </motion.span>
             ))}
           </motion.h1>
 
-          <p className="text-white-700 text-sm sm:text-base max-w-md sm:max-w-xl mx-auto font-light px-2">
+          <p className="text-gray-700 text-sm sm:text-base max-w-md sm:max-w-xl mx-auto font-light px-2">
             Fashion powered by AI — inspired by travel, music, anime, and moments that define you.
           </p>
         </motion.div>
 
-        {/* Chat Suggestions */}
+        {/* Chat Suggestions Title */}
+        <div className="text-center">
+          <p className="text-sm sm:text-base text-gray-500 font-medium mb-4 uppercase tracking-widest">
+            Try Anything You Want
+          </p>
+        </div>
+
+        {/* Chat Suggestions Grid */}
         <AnimatePresence>
           {suggestionsVisible && (
             <motion.div
               key="suggestions-grid"
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-items-center max-w-5xl mx-auto px-2"
+              className="flex flex-wrap justify-center gap-3 sm:gap-4 max-w-5xl mx-auto px-2"
               initial="hidden"
               animate="visible"
               exit={{ opacity: 0 }}
@@ -104,7 +100,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({ onChatOpen, hasInteracted }) =>
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ delay: i * 0.1, duration: 0.8, type: 'spring' }}
-                  className="bg-white-300 text-black px-5 py-3 rounded-xl shadow max-w-xs w-full text-sm  text-center"
+                  className="bg-gray-100 text-black px-4 py-2 rounded-xl shadow text-sm font-normal text-center whitespace-nowrap"
                 >
                   {text}
                 </motion.div>
