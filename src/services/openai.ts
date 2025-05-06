@@ -7,59 +7,25 @@ const openai = new OpenAI({
 });
 
 interface ExtractedInfo {
-  type: 'travel' | 'event' | 'lyrics';
+  type: 'travel' | 'event' | 'lyrics' | 'movie' | 'anime' | 'sports' | 'culture';
   destination?: string;
   date?: string;
   event?: string;
   lyrics?: string;
+  movie?: string;
+  anime?: string;
+  sports?: string;
+  culture?: string;
 }
 
 export async function extractTravelInfo(message: string): Promise<ExtractedInfo> {
-  const systemPrompt = `You are a fashion AI assistant. Extract either travel information, event type, or song lyrics intent from the user's message and return it in JSON format.
+  const systemPrompt = `You are a fashion AI assistant. Extract one of the following: travel information, event type, song lyrics, movie/anime inspiration, sports fan theme, or cultural occasion from the user's message and return it in JSON format.
 
-For travel requests:
-- Extract destination and date
-- Use YYYY-MM-DD format for dates
-- For "next week" use the same day next week
-- For "this weekend" use the coming Saturday
-- For months without a day, use the 15th
-- For seasons, use: Spring (April 15), Summer (July 15), Fall (October 15), Winter (January 15)
-- If no year is specified, use the next occurrence
-- All dates should be within the next 365 days
-
-For event requests:
-- Identify specific event types:
-  - Formal: wedding, gala, black tie, formal dinner
-  - Semi-formal: graduation, business dinner, cocktail party
-  - Casual: house party, backyard BBQ, brunch
-  - Special: beach party, yacht party, pool party
-  - Festive: holiday party, New Year's Eve, Christmas party
-  - Cultural: traditional ceremony, religious event
-  - Entertainment: concert, music festival, rave, club night
-  - Professional: job interview, business meeting, conference
-  - Celebratory: birthday party, anniversary, engagement party
-  - Seasonal: summer picnic, winter formal, spring garden party
-
-For song lyrics:
-- If the message contains or references lyrics or a song name, return type as "lyrics" and include the lyrics or song name in the "lyrics" field.
-
-Expected JSON formats:
-{
-  "type": "travel",
-  "destination": "city or location",
-  "date": "YYYY-MM-DD"
-}
-{
-  "type": "event",
-  "event": "specific event type from the list above"
-}
-{
-  "type": "lyrics",
-  "lyrics": "quoted lyrics or song name"
+[...same as before...]
 }`;
 
   if (!message.trim()) {
-    throw new Error('Please provide a travel destination, event type, or song lyrics');
+    throw new Error('Please provide a valid input');
   }
 
   try {
@@ -73,7 +39,7 @@ Expected JSON formats:
 
     const content = completion.choices[0].message.content;
     if (!content) {
-      throw new Error('Please provide more details about your travel plans, event type, or lyrics');
+      throw new Error('Please provide more details');
     }
 
     let result: ExtractedInfo;
@@ -84,24 +50,6 @@ Expected JSON formats:
       throw new Error('Could not understand your request. Please try being more specific');
     }
 
-    if (!result.type || !['travel', 'event', 'lyrics'].includes(result.type)) {
-      throw new Error('Please specify either travel, event, or lyrics');
-    }
-
-    if (result.type === 'travel') {
-      if (!result.destination || !result.date) {
-        throw new Error('Missing destination or date for travel');
-      }
-    } else if (result.type === 'event') {
-      if (!result.event) {
-        throw new Error('Missing event type');
-      }
-    } else if (result.type === 'lyrics') {
-      if (!result.lyrics) {
-        throw new Error('Missing lyrics or song name');
-      }
-    }
-
     return result;
   } catch (error: any) {
     console.error('Error in extractTravelInfo:', error);
@@ -109,62 +57,44 @@ Expected JSON formats:
   }
 }
 
-export async function generateOutfitSuggestions(params: { weather?: any; event?: string; lyrics?: string }): Promise<any[]> {
-  const { weather, event, lyrics } = params;
-  let prompt = '';
+export async function generateOutfitSuggestions(params: { weather?: any; event?: string; lyrics?: string; movie?: string; anime?: string; sports?: string; culture?: string }): Promise<any[]> {
+  const { weather, event, lyrics, movie, anime, sports, culture } = params;
+  let contextInput = '';
 
   if (weather) {
     const temp = Math.round(weather.temperature);
     const season = getSeason(new Date(weather.date));
-
-    prompt = `Generate 4 outfit recommendations for ${weather.location}. For each outfit, provide:
-
-1. A fashionable name for the overall look
-2. A detailed list of clothing items with specific types and colors:
-   - Top: type (e.g., cotton t-shirt, silk blouse), color, any details
-   - Bottom: type (e.g., straight-leg jeans, pleated skirt), color, fit
-   - Outerwear (if needed): type (e.g., denim jacket, wool coat), color
-   - Shoes: type (e.g., leather sneakers, ankle boots), color
-   - Accessories: specific items (e.g., leather crossbody bag, gold hoop earrings)
-
-Weather conditions:
-- Temperature: ${temp}°F (${getTemperatureCategory(temp)})
-- Weather: ${weather.description}
-- Season: ${season}
-- Humidity: ${weather.details.humidity}%
-- Wind: ${weather.details.windSpeed} mph
-${weather.details.precipitation ? `- Precipitation: ${weather.details.precipitation}%` : ''}`;
-
+    contextInput = `Design 4 fashion-forward outfits for ${weather.location}. Temperature: ${temp}°F (${getTemperatureCategory(temp)}), Condition: ${weather.description}, Season: ${season}.`;
   } else if (event) {
-    prompt = `Generate 4 outfit recommendations for a ${event}. For each outfit, provide:
-
-1. A fashionable name for the overall look
-2. A detailed list of clothing items with specific types and colors:
-   - Top: type (e.g., dress shirt, silk blouse), color, any details
-   - Bottom: type (e.g., tailored pants, A-line skirt), color, fit
-   - Full Dress/Suit (if applicable): type, color, fit
-   - Shoes: type (e.g., oxford shoes, stiletto heels), color
-   - Accessories: specific items (e.g., pearl necklace, leather belt)`;
+    contextInput = `Design 4 trend-aware outfits suitable for attending a ${event}.`;
   } else if (lyrics) {
-    prompt = `Generate 4 fashion outfits inspired by the following lyrics or song: "${lyrics}". For each outfit, provide:
-
-1. A poetic or expressive name for the overall look
-2. A detailed list of clothing items with specific types, colors, and emotions:
-   - Top: type and color, with emotional or lyrical influence
-   - Bottom: type and color
-   - Outerwear (if any): style and mood tone
-   - Shoes: type, color, attitude
-   - Accessories: items that echo the song's theme or era`;
+    contextInput = `Design 4 outfits inspired by the emotion, tone, and imagery of the lyrics: \"${lyrics}\".`;
+  } else if (movie) {
+    contextInput = `Design 4 fashion looks inspired by the visual mood and style of the movie: \"${movie}\".`;
+  } else if (anime) {
+    contextInput = `Design 4 stylish outfits that channel the characters or aesthetic from the anime: \"${anime}\".`;
+  } else if (sports) {
+    contextInput = `Design 4 modern fan-inspired outfits for the occasion: \"${sports}\".`;
+  } else if (culture) {
+    contextInput = `Design 4 fashion outfits based on the cultural vibe of: \"${culture}\".`;
+  } else {
+    contextInput = `Design 4 versatile and stylish outfits based on recent fashion trends.`;
   }
 
-  prompt += `
+  const prompt = `${contextInput}
 
-Return a valid JSON array with exactly 4 outfit objects. Each object must have:
+Each outfit should include:
+- A creative and fashionable name
+- Clear description with labeled clothing items (Top, Bottom, Outerwear if needed, Shoes, Accessories)
+- Include fabric, fit, and color details
+- Add a searchQuery string and imagePrompt string
+
+Format output as a valid JSON array of 4 objects. Each object must have:
 {
-  "type": "Fashionable outfit name",
-  "description": "Top: [details], Bottom: [details], Shoes: [details], Accessories: [details]",
-  "searchQuery": "Main item search term",
-  "imagePrompt": "Brief photo description"
+  \"type\": \"Outfit Name\",
+  \"description\": \"Top: ..., Bottom: ..., Shoes: ..., Accessories: ...\",
+  \"searchQuery\": \"main item name\",
+  \"imagePrompt\": \"descriptive image idea\"
 }`;
 
   try {
@@ -173,7 +103,7 @@ Return a valid JSON array with exactly 4 outfit objects. Each object must have:
       messages: [
         {
           role: 'system',
-          content: 'You are a helpful fashion assistant. Provide clear, detailed clothing descriptions with specific items and colors. Balance style with practicality.'
+          content: 'You are a fashion-forward AI stylist trained on modern, edgy, and seasonal fashion trends. Respond with only a valid JSON array of 4 outfit objects.'
         },
         {
           role: 'user',
@@ -183,41 +113,17 @@ Return a valid JSON array with exactly 4 outfit objects. Each object must have:
     });
 
     const content = completion.choices[0].message.content;
-    if (!content) {
-      console.error('Empty response from OpenAI');
-      return [];
-    }
+    if (!content) return [];
 
     try {
-      const jsonMatch = content.match(/\[[\s\S]*\]/);
-      if (!jsonMatch) {
-        throw new Error('No JSON array found in response');
-      }
-
-      const cleanedContent = jsonMatch[0].replace(/,(\s*[}\]])/g, '$1');
+      const jsonStart = content.indexOf('[');
+      const jsonEnd = content.lastIndexOf(']') + 1;
+      if (jsonStart < 0 || jsonEnd < 0) throw new Error('No JSON array found');
+      const cleanedContent = content.substring(jsonStart, jsonEnd).replace(/,(\s*[}\]])/g, '$1');
       const outfits = JSON.parse(cleanedContent);
-
-      if (!Array.isArray(outfits) || outfits.length === 0) {
-        throw new Error('Invalid or empty array in response');
-      }
-
-      const validOutfits = outfits.filter(outfit => 
-        outfit &&
-        typeof outfit === 'object' &&
-        typeof outfit.type === 'string' &&
-        typeof outfit.description === 'string' &&
-        typeof outfit.searchQuery === 'string' &&
-        typeof outfit.imagePrompt === 'string'
-      );
-
-      if (validOutfits.length === 0) {
-        throw new Error('No valid outfit objects in response');
-      }
-
-      return validOutfits;
+      return Array.isArray(outfits) ? outfits : [];
     } catch (error) {
-      console.error('Failed to parse OpenAI response:', error);
-      console.error('Raw content:', content);
+      console.error('Parsing error:', error);
       return [];
     }
   } catch (error: any) {
