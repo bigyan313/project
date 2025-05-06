@@ -19,13 +19,13 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ onSubmit, isLoading, travelPlan }
       timestamp: new Date()
     }
   ]);
-  
+
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (travelPlan) {
       let newMessage = '';
-      
+
       if (travelPlan.status === 'success') {
         if (travelPlan.type === 'travel') {
           newMessage = `Here are your outfit suggestions for ${travelPlan.destination} on ${new Date(travelPlan.date).toLocaleDateString()}. I've checked the weather and found some great options for you!`;
@@ -37,14 +37,17 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ onSubmit, isLoading, travelPlan }
       } else if (travelPlan.status === 'error') {
         newMessage = `Sorry, I encountered an error: ${travelPlan.error}. Please try again with a different request.`;
       }
-      
+
       if (newMessage) {
-        setChatHistory(prev => [...prev, {
-          id: Date.now().toString(),
-          content: newMessage,
-          type: 'assistant',
-          timestamp: new Date()
-        }]);
+        setChatHistory(prev => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            content: newMessage,
+            type: 'assistant',
+            timestamp: new Date()
+          }
+        ]);
       }
     }
   }, [travelPlan]);
@@ -64,7 +67,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ onSubmit, isLoading, travelPlan }
         type: 'user',
         timestamp: new Date()
       };
-      
+
       setChatHistory(prev => [...prev, newMessage]);
       onSubmit(message);
       setMessage('');
@@ -72,15 +75,17 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ onSubmit, isLoading, travelPlan }
   };
 
   return (
-    <div className="flex flex-col h-[600px] bg-white rounded-xl border border-gray-100 overflow-hidden">
+    <div className="w-full max-w-lg mx-auto flex flex-col h-full max-h-[90vh] bg-white rounded-xl border border-gray-100 overflow-hidden shadow-md">
+      {/* Header */}
       <div className="p-4 border-b border-gray-100 bg-gray-50">
         <h2 className="text-lg font-light text-black">How can I help you today?</h2>
         <p className="text-gray-600 text-sm font-light">
-          Ask about travel outfits or event wear
+          Ask about outfits or event wear
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4" ref={chatContainerRef}>
+      {/* Chat Content */}
+      <div className="flex-1 overflow-y-auto px-4 py-3" ref={chatContainerRef}>
         <div className="space-y-4">
           {chatHistory.map((msg) => (
             <ChatMessage
@@ -93,6 +98,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ onSubmit, isLoading, travelPlan }
         </div>
       </div>
 
+      {/* Chat Input */}
       <div className="p-4 border-t border-gray-100 bg-gray-50">
         <form onSubmit={handleSubmit} className="flex gap-2">
           <input
@@ -100,7 +106,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ onSubmit, isLoading, travelPlan }
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Ask about travel or event outfits..."
-            className="flex-1 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-purple-500 bg-white font-light"
+            className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-purple-500 bg-white text-sm font-light"
             disabled={isLoading}
           />
           <button
@@ -113,7 +119,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({ onSubmit, isLoading, travelPlan }
             disabled={isLoading || !message.trim()}
           >
             {isLoading ? (
-              <Loader className="h-5 w-5" />
+              <Loader className="h-5 w-5 animate-spin" />
             ) : (
               <Send className="h-5 w-5" />
             )}
